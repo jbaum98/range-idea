@@ -157,10 +157,11 @@ mod test {
     #[test]
     fn test_steps_excl_int_range() {
         let mut iter: ExclusiveRange<i32, i32> = ExclusiveRange {
-            start: 0,
-            stop: 5,
-            step: 1,
-        }.step_by(2);
+                start: 0,
+                stop: 5,
+                step: 1,
+            }
+            .step_by(2);
         assert_eq!(iter.next(), Some(0));
         assert_eq!(iter.next(), Some(2));
         assert_eq!(iter.next(), Some(4));
