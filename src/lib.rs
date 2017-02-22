@@ -96,6 +96,8 @@ impl<T, S> StepBy<S> for UnboundedRange<T, S>
 mod test {
     use super::*;
 
+    const EPSILON: f32  = 1e-7;
+
     #[test]
     fn test_excl_int_range() {
         let mut iter: ExclusiveRange<i32, i32> = ExclusiveRange {
@@ -116,11 +118,24 @@ mod test {
             stop: 1.0,
             step: 0.3,
         };
-        assert_eq!(iter.next(), Some(0.0));
-        assert_eq!(iter.next(), Some(0.3));
-        assert_eq!(iter.next(), Some(0.6));
-        assert_eq!(iter.next(), Some(0.9));
-        assert_eq!(iter.next(), None);
+        assert!((iter.next().unwrap().abs() - 0.0) < EPSILON);
+        assert!((iter.next().unwrap().abs() - 0.3) < EPSILON);
+        assert!((iter.next().unwrap().abs() - 0.6) < EPSILON);
+        assert!((iter.next().unwrap().abs() - 0.9) < EPSILON);
+        assert_eq!(iter.next(),  None);
+    }
+
+    #[test]
+    fn test_excl_float_range_on_boundary() {
+        let mut iter: ExclusiveRange<f32, f32> = ExclusiveRange {
+            start: 0.0,
+            stop: 0.9,
+            step: 0.3,
+        };
+        assert!((iter.next().unwrap().abs() - 0.0) < EPSILON);
+        assert!((iter.next().unwrap().abs() - 0.3) < EPSILON);
+        assert!((iter.next().unwrap().abs() - 0.6) < EPSILON);
+        assert_eq!(iter.next(),  None);
     }
 
     #[test]
@@ -138,6 +153,34 @@ mod test {
     }
 
     #[test]
+    fn test_incl_float_range() {
+        let mut iter: InclusiveRange<f32, f32> = InclusiveRange {
+            start: 0.0,
+            stop: 1.0,
+            step: 0.3,
+        };
+        assert!((iter.next().unwrap().abs() - 0.0) < EPSILON);
+        assert!((iter.next().unwrap().abs() - 0.3) < EPSILON);
+        assert!((iter.next().unwrap().abs() - 0.6) < EPSILON);
+        assert!((iter.next().unwrap().abs() - 0.9) < EPSILON);
+        assert_eq!(iter.next(),  None);
+    }
+
+    #[test]
+    fn test_incl_float_range_on_boundary() {
+        let mut iter: InclusiveRange<f32, f32> = InclusiveRange {
+            start: 0.0,
+            stop: 0.9,
+            step: 0.3,
+        };
+        assert!((iter.next().unwrap().abs() - 0.0) < EPSILON);
+        assert!((iter.next().unwrap().abs() - 0.3) < EPSILON);
+        assert!((iter.next().unwrap().abs() - 0.6) < EPSILON);
+        // assert!((iter.next().unwrap().abs() - 0.9) < EPSILON);
+        assert_eq!(iter.next(),  None);
+    }
+
+    #[test]
     fn test_unbound_int_range() {
         let mut iter: UnboundedRange<i32, i32> = UnboundedRange {
             start: 0,
@@ -152,6 +195,23 @@ mod test {
             iter.next();
         }
         assert_eq!(iter.next(), Some(1004));
+    }
+
+    #[test]
+    fn test_unbound_float_range() {
+        let mut iter: UnboundedRange<f32, f32> = UnboundedRange {
+            start: 0.0,
+            step: 0.3,
+        };
+        assert!((iter.next().unwrap() - 0.0).abs() < EPSILON);
+        assert!((iter.next().unwrap() - 0.3).abs() < EPSILON);
+        assert!((iter.next().unwrap() - 0.6).abs() < EPSILON);
+        assert!((iter.next().unwrap() - 0.9).abs() < EPSILON);
+        assert!((iter.next().unwrap() - 1.2).abs() < EPSILON);
+        for _ in 1..1000 {
+            iter.next();
+        }
+        assert!((iter.next().unwrap() - 301.2).abs() < EPSILON);
     }
 
     #[test]
